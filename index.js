@@ -28,3 +28,17 @@ for (const file of eventFiles) {
 }
 
 client.login(process.env.TOKEN);
+
+const http = require('http');
+
+http.createServer((req, res) => {
+  res.end("KDZ Bot is running!");
+}).listen(process.env.PORT || 3000, () => {
+  console.log("Serveur HTTP lancé pour Render sur le port " + (process.env.PORT || 3000));
+});
+// This code initializes a Discord bot using the discord.js library.
+// It loads commands and events from specified directories, sets up the bot's intents, and logs in using a token from environment variables.
+// The bot listens for interactions and events, allowing it to respond to user commands and perform actions based on those interactions.
+// Additionally, it sets up a simple HTTP server to keep the bot running on platforms like Render, which require an active HTTP server to prevent the bot from going idle.
+// The bot's commands are stored in a collection, allowing for easy retrieval and execution when a command is invoked.
+// The events are also registered, allowing the bot to respond to various Discord events such as when it is ready or when a user interacts with a command.  
