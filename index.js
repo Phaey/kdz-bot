@@ -2,6 +2,7 @@ import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import http from 'http';
 
 config();
 
@@ -29,13 +30,14 @@ for (const file of eventFiles) {
 
 client.login(process.env.TOKEN);
 
-const http = require('http');
+const port = process.env.PORT || 3000;
 
 http.createServer((req, res) => {
-  res.end("KDZ Bot is running!");
-}).listen(process.env.PORT || 3000, () => {
-  console.log("Serveur HTTP lancé pour Render sur le port " + (process.env.PORT || 3000));
+  res.end('KDZ Bot is running!');
+}).listen(port, () => {
+  console.log(`Serveur HTTP lancé pour Render sur le port ${port}`);
 });
+
 // This code initializes a Discord bot using the discord.js library.
 // It loads commands and events from specified directories, sets up the bot's intents, and logs in using a token from environment variables.
 // The bot listens for interactions and events, allowing it to respond to user commands and perform actions based on those interactions.
