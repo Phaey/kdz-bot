@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Créer un personnage | KDZ</title>
+</head>
+<body>
+  <h1>Création de personnage</h1>
+  <p id="welcome">Chargement...</p>
+
+  <div id="fiche-existante" style="display:none;">
+    <h2>Fiche déjà soumise</h2>
+    <pre id="fiche-json" style="white-space:pre-wrap;"></pre>
+    <p>Contactez un modérateur pour la modifier.</p>
+  </div>
+
+  <form id="character-form">
+    <label>Nom : <input type="text" name="nom" required></label><br>
+    <label>Race : <input type="text" name="race" required></label><br>
+    <label>Pourcentage de Hadō : <input type="number" name="hado" min="10" step="10" required></label><br>
+    <label>Pouvoirs : <textarea name="pouvoirs" required></textarea></label><br>
+    <button type="submit">Soumettre</button>
+  </form>
+
+  <p id="resultat"></p>
+
+  <script>
+    async function getUser() {
+      const res = await fetch('/api/user');
+      if (res.ok) {
+        const user = await res.json();
+        document.getElementById('welcome').textContent = `Bienvenue, ${user.username}`;
+        checkFiche();
+      } else {
+        location.href = '/auth/discord';
+      }
+    }
+
+    async function checkFiche() {
+      const res = await fetch('/api/personnage/me');
+      if (res.ok) {
+        const fiche = await res.json();
+        document.getElementById('fiche-existante').style.display = 'block';
+        document.getElementById('fiche-json').textContent = JSON.stringify(fiche, null, 2);
+        document.getElementById('character-form').style.display = 'none';
+      }
+    }
+
+    document.getElementById('character-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.hado = parseInt(data.hado);
+      data.pouvoirs = data.pouvoirs.split(',').map(x => x.trim());
+
+      const res = await fetch('/api/personnage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      document.getElementById('resultat').textContent = await res.text();
+    });
+
+    getUser();
+  </script>
+</body>
+</html>
+<!-- This HTML file provides a user interface for creating a character in a Discord bot context.
+     It includes a form for submitting character details and checks if the user already has a character submitted.
+     If a character exists, it displays the existing character's details and prevents further submissions. -->

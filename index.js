@@ -2,11 +2,18 @@ import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import express from 'express';
 import http from 'http';
+
+import personnageRoute from './routes/personnage.js';
+import { setupAuth } from './auth/discord.js';
 
 config();
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// === Initialisation du bot Discord ===
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds]
+});
 
 client.commands = new Collection();
 
@@ -30,12 +37,23 @@ for (const file of eventFiles) {
 
 client.login(process.env.TOKEN);
 
+// === Serveur Express pour le dashboard ===
+const app = express();
 const port = process.env.PORT || 3000;
 
-http.createServer((req, res) => {
-  res.end('KDZ Bot is running!');
-}).listen(port, () => {
-  console.log(`Serveur HTTP lancé pour Render sur le port ${port}`);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public')); // dossier public (HTML/CSS/JS)
+
+setupAuth(app);                      // setup des routes /login, /logout, /callback
+app.use(personnageRoute);           // API de création de personnage
+
+app.get('/', (req, res) => {
+  res.send('KDZ Bot + Dashboard Web actif.');
+});
+
+app.listen(port, () => {
+  console.log(`✅ Serveur HTTP lancé pour Render sur le port ${port}`);
 });
 
 // This code initializes a Discord bot using the discord.js library.
